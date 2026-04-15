@@ -1057,7 +1057,7 @@ async function togglePledgeLike(key, btn) {
   local.set('pledge_liked', myLiked);
 
   // RPC로 원자적 증감
-  await sb().rpc('increment_pledge_like', { p_key: key, p_delta: delta }).catch(()=>{});
+  try { await sb().rpc('increment_pledge_like', { p_key: key, p_delta: delta }); } catch(e) { console.error(e); }
 
   // 최신 카운트 읽기
   try {
@@ -1167,10 +1167,10 @@ async function toggleEmpathy(postId, btn, currentCnt) {
 
   if (was) {
     delete myEmp[postId];
-    await sb().rpc('increment_empathy', { p_id: postId, p_delta: -1 }).catch(()=>{});
+    try { await sb().rpc('increment_empathy', { p_id: postId, p_delta: -1 }); } catch(e) { console.error(e); }
   } else {
     myEmp[postId] = true;
-    await sb().rpc('increment_empathy', { p_id: postId, p_delta: 1 }).catch(()=>{});
+    try { await sb().rpc('increment_empathy', { p_id: postId, p_delta: 1 }); } catch(e) { console.error(e); }
   }
   local.set('post_empathized', myEmp);
 }
