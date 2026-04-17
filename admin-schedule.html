@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>일정 관리 · 용인시을 대시보드</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Noto Sans KR', sans-serif;
+  background: #F0F4FA;
+  min-height: 100vh;
+  color: #1A2540;
+}
+
+/* ── 로그인 화면 ── */
+.login-wrap {
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+}
+.login-card {
+  background: white;
+  border-radius: 20px;
+  padding: 40px 36px;
+  width: 100%; max-width: 380px;
+  box-shadow: 0 8px 40px rgba(0,78,162,0.12);
+}
+.login-logo {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 28px;
+}
+.login-logo-dot {
+  width: 12px; height: 12px; border-radius: 50%;
+  background: #004EA2;
+}
+.login-title { font-size: 18px; font-weight: 900; color: #004EA2; }
+.login-sub { font-size: 13px; color: #7A8BA8; margin-bottom: 28px; }
+.login-label { font-size: 12px; font-weight: 700; color: #4A5B78; margin-bottom: 6px; display: block; }
+.login-input {
+  width: 100%; padding: 12px 14px;
+  border: 1.5px solid #D8E2F0;
+  border-radius: 10px; font-size: 15px;
+  font-family: 'Noto Sans KR', sans-serif;
+  outline: none; margin-bottom: 16px;
+  transition: border-color 0.2s;
+  letter-spacing: 3px;
+}
+.login-input:focus { border-color: #004EA2; }
+.login-btn {
+  width: 100%; padding: 13px;
+  background: #004EA2; color: white;
+  border: none; border-radius: 10px;
+  font-size: 15px; font-weight: 700;
+  cursor: pointer; font-family: 'Noto Sans KR', sans-serif;
+  transition: background 0.2s;
+}
+.login-btn:hover { background: #0064C8; }
+.login-error {
+  font-size: 12px; color: #E8002D;
+  margin-top: 10px; text-align: center; display: none;
+}
+
+/* ── 관리자 메인 ── */
+.admin-wrap { display: none; max-width: 800px; margin: 0 auto; padding: 24px 20px 60px; }
+
+.admin-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 24px;
+}
+.admin-header-left { display: flex; align-items: center; gap: 10px; }
+.admin-dot { width: 10px; height: 10px; border-radius: 50%; background: #004EA2; }
+.admin-title { font-size: 20px; font-weight: 900; color: #004EA2; }
+.logout-btn {
+  background: none; border: 1.5px solid #D8E2F0;
+  border-radius: 8px; padding: 6px 14px;
+  font-size: 12px; color: #7A8BA8; cursor: pointer;
+  font-family: 'Noto Sans KR', sans-serif;
+}
+.logout-btn:hover { border-color: #004EA2; color: #004EA2; }
+
+/* 입력 폼 */
+.form-card {
+  background: white; border-radius: 16px;
+  padding: 24px; margin-bottom: 20px;
+  box-shadow: 0 2px 12px rgba(0,78,162,0.08);
+}
+.form-card-title {
+  font-size: 14px; font-weight: 800; color: #004EA2;
+  margin-bottom: 18px; display: flex; align-items: center; gap: 8px;
+}
+.form-card-title::before {
+  content: ''; width: 4px; height: 16px;
+  background: #004EA2; border-radius: 2px;
+}
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+.form-row.full { grid-template-columns: 1fr; }
+.form-row.three { grid-template-columns: 1fr 1fr 1fr; }
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-label { font-size: 11px; font-weight: 700; color: #4A5B78; letter-spacing: 0.3px; }
+.form-label span { color: #E8002D; }
+.form-input, .form-select {
+  padding: 10px 12px;
+  border: 1.5px solid #D8E2F0; border-radius: 8px;
+  font-size: 13px; font-family: 'Noto Sans KR', sans-serif;
+  outline: none; transition: border-color 0.2s;
+  background: white;
+}
+.form-input:focus, .form-select:focus { border-color: #004EA2; background: #F8FAFF; }
+.form-hint { font-size: 10px; color: #A0ADBE; margin-top: 2px; }
+
+.submit-btn {
+  width: 100%; padding: 13px;
+  background: #004EA2; color: white;
+  border: none; border-radius: 10px;
+  font-size: 14px; font-weight: 700;
+  cursor: pointer; font-family: 'Noto Sans KR', sans-serif;
+  transition: all 0.2s; margin-top: 8px;
+}
+.submit-btn:hover { background: #0064C8; transform: translateY(-1px); }
+.submit-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+/* 토스트 */
+.toast {
+  position: fixed; bottom: 24px; left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: #1A2540; color: white;
+  padding: 10px 20px; border-radius: 24px;
+  font-size: 13px; font-weight: 600;
+  z-index: 9999; transition: transform 0.3s ease;
+  pointer-events: none;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+.toast.success { background: #1A7A3A; }
+.toast.error { background: #C0392B; }
+
+/* 등록된 일정 목록 */
+.list-card {
+  background: white; border-radius: 16px;
+  padding: 24px; box-shadow: 0 2px 12px rgba(0,78,162,0.08);
+}
+.list-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 16px;
+}
+.list-title {
+  font-size: 14px; font-weight: 800; color: #004EA2;
+  display: flex; align-items: center; gap: 8px;
+}
+.list-title::before {
+  content: ''; width: 4px; height: 16px;
+  background: #004EA2; border-radius: 2px;
+}
+.refresh-btn {
+  background: none; border: 1.5px solid #D8E2F0;
+  border-radius: 8px; padding: 5px 12px;
+  font-size: 11px; color: #7A8BA8; cursor: pointer;
+  font-family: 'Noto Sans KR', sans-serif;
+}
+.refresh-btn:hover { border-color: #004EA2; color: #004EA2; }
+
+.schedule-table { width: 100%; border-collapse: collapse; }
+.schedule-table th {
+  text-align: left; padding: 8px 10px;
+  font-size: 11px; font-weight: 700; color: #7A8BA8;
+  border-bottom: 1.5px solid #E8EEF8;
+  background: #F8FAFF;
+}
+.schedule-table td {
+  padding: 10px 10px; font-size: 13px;
+  border-bottom: 1px solid #F0F4FA;
+  vertical-align: middle;
+}
+.schedule-table tr:last-child td { border-bottom: none; }
+.schedule-table tr:hover td { background: #F8FAFF; }
+
+.del-btn {
+  background: none; border: 1px solid #FFCDD2;
+  border-radius: 6px; padding: 3px 8px;
+  font-size: 11px; color: #C0392B; cursor: pointer;
+  font-family: 'Noto Sans KR', sans-serif;
+  transition: all 0.2s;
+}
+.del-btn:hover { background: #FFEBEE; }
+
+.empty-list { text-align: center; padding: 32px; color: #A0ADBE; font-size: 13px; }
+
+.candidate-badge {
+  display: inline-block; background: #E8F1FB;
+  color: #004EA2; font-size: 10px; font-weight: 700;
+  padding: 2px 8px; border-radius: 10px;
+}
+
+@media (max-width: 500px) {
+  .form-row { grid-template-columns: 1fr; }
+  .form-row.three { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<!-- 로그인 화면 -->
+<div class="login-wrap" id="loginWrap">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-dot"></div>
+      <div class="login-title">용인시을 대시보드</div>
+    </div>
+    <div class="login-sub">일정 관리 페이지입니다.<br>비밀번호를 입력해주세요.</div>
+    <label class="login-label">비밀번호</label>
+    <input class="login-input" type="password" id="pwInput"
+      placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()">입장하기</button>
+    <div class="login-error" id="loginError">비밀번호가 틀렸습니다</div>
+  </div>
+</div>
+
+<!-- 관리자 메인 -->
+<div class="admin-wrap" id="adminWrap">
+  <div class="admin-header">
+    <div class="admin-header-left">
+      <div class="admin-dot"></div>
+      <div class="admin-title">일정 관리</div>
+    </div>
+    <button class="logout-btn" onclick="doLogout()">로그아웃</button>
+  </div>
+
+  <!-- 일정 등록 폼 -->
+  <div class="form-card">
+    <div class="form-card-title">새 일정 등록</div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">후보 이름 <span>*</span></label>
+        <select class="form-select" id="fCandidate">
+          <option value="">선택하세요</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">날짜 <span>*</span></label>
+        <input class="form-input" id="fDate" placeholder="예) 5/10(일)">
+        <div class="form-hint">예: 5/10(일), 5/15(금)</div>
+      </div>
+    </div>
+
+    <div class="form-row full">
+      <div class="form-group">
+        <label class="form-label">일정 내용 <span>*</span></label>
+        <input class="form-input" id="fEvent" placeholder="예) 주민 간담회, 거리 유세">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">장소 <span>*</span></label>
+        <input class="form-input" id="fPlace" placeholder="예) 구갈동 주민센터">
+      </div>
+      <div class="form-group">
+        <label class="form-label">순서</label>
+        <input class="form-input" id="fOrder" type="number" placeholder="1" value="1" min="1">
+        <div class="form-hint">숫자가 작을수록 위에 표시</div>
+      </div>
+    </div>
+
+    <button class="submit-btn" id="submitBtn" onclick="submitSchedule()">
+      ＋ 일정 등록하기
+    </button>
+  </div>
+
+  <!-- 등록된 일정 목록 -->
+  <div class="list-card">
+    <div class="list-header">
+      <div class="list-title">등록된 일정</div>
+      <button class="refresh-btn" onclick="loadSchedules()">새로고침</button>
+    </div>
+    <div id="scheduleList">
+      <div class="empty-list">로딩 중…</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════
+// 설정
+// ════════════════════════════════════════
+const ADMIN_PW = '2026yongin'; // ← 비밀번호 여기서 변경
+const SUPABASE_URL = 'https://umtvrvpvvievogjjfigk.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVtdHZydnB2dmlldm9nampmaWdrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxOTY4NzIsImV4cCI6MjA5MTc3Mjg3Mn0.1aEU0zmKXuy2ZD7UpDUUvF7NAN41du02gWUIl7KCgA4';
+
+const _sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ════════════════════════════════════════
+// 로그인
+// ════════════════════════════════════════
+function doLogin() {
+  const pw = document.getElementById('pwInput').value;
+  if (pw === ADMIN_PW) {
+    document.getElementById('loginWrap').style.display = 'none';
+    document.getElementById('adminWrap').style.display = 'block';
+    loadCandidateList();
+    loadSchedules();
+  } else {
+    document.getElementById('loginError').style.display = 'block';
+    document.getElementById('pwInput').value = '';
+    document.getElementById('pwInput').focus();
+  }
+}
+
+function doLogout() {
+  document.getElementById('loginWrap').style.display = 'flex';
+  document.getElementById('adminWrap').style.display = 'none';
+  document.getElementById('pwInput').value = '';
+}
+
+// ════════════════════════════════════════
+// 후보 목록 로딩
+// ════════════════════════════════════════
+async function loadCandidateList() {
+  const { data } = await _sb.from('candidates').select('name').order('sort_order');
+  const sel = document.getElementById('fCandidate');
+  sel.innerHTML = '<option value="">선택하세요</option>';
+  (data||[]).forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c.name;
+    opt.textContent = c.name;
+    sel.appendChild(opt);
+  });
+}
+
+// ════════════════════════════════════════
+// 일정 등록
+// ════════════════════════════════════════
+async function submitSchedule() {
+  const candidate = document.getElementById('fCandidate').value.trim();
+  const date      = document.getElementById('fDate').value.trim();
+  const event     = document.getElementById('fEvent').value.trim();
+  const place     = document.getElementById('fPlace').value.trim();
+  const order     = parseInt(document.getElementById('fOrder').value) || 1;
+
+  if (!candidate || !date || !event || !place) {
+    showToast('모든 필수 항목을 입력해주세요', 'error'); return;
+  }
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true; btn.textContent = '등록 중…';
+
+  try {
+    const { error } = await _sb.from('schedules').insert({
+      candidate_id: candidate,
+      date_label: date,
+      event: event,
+      place: place,
+      sort_order: order,
+    });
+    if (error) throw error;
+
+    showToast('✅ 일정이 등록됐어요!', 'success');
+    document.getElementById('fDate').value = '';
+    document.getElementById('fEvent').value = '';
+    document.getElementById('fPlace').value = '';
+    document.getElementById('fOrder').value = '1';
+    loadSchedules();
+  } catch(e) {
+    showToast('등록 실패: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = '＋ 일정 등록하기';
+  }
+}
+
+// ════════════════════════════════════════
+// 일정 목록 로딩
+// ════════════════════════════════════════
+async function loadSchedules() {
+  const container = document.getElementById('scheduleList');
+  container.innerHTML = '<div class="empty-list">불러오는 중…</div>';
+
+  const { data, error } = await _sb
+    .from('schedules')
+    .select('*')
+    .order('candidate_id')
+    .order('sort_order');
+
+  if (error || !data?.length) {
+    container.innerHTML = '<div class="empty-list">등록된 일정이 없어요</div>';
+    return;
+  }
+
+  container.innerHTML = `
+    <table class="schedule-table">
+      <thead>
+        <tr>
+          <th>후보</th>
+          <th>날짜</th>
+          <th>일정</th>
+          <th>장소</th>
+          <th>순서</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        ${data.map(s => `
+          <tr>
+            <td><span class="candidate-badge">${esc(s.candidate_id)}</span></td>
+            <td>${esc(s.date_label)}</td>
+            <td>${esc(s.event)}</td>
+            <td>${esc(s.place)}</td>
+            <td style="text-align:center;color:#A0ADBE;">${s.sort_order}</td>
+            <td>
+              <button class="del-btn" onclick="deleteSchedule('${s.id}')">삭제</button>
+            </td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>`;
+}
+
+// ════════════════════════════════════════
+// 일정 삭제
+// ════════════════════════════════════════
+async function deleteSchedule(id) {
+  if (!confirm('이 일정을 삭제할까요?')) return;
+  const { error } = await _sb.from('schedules').delete().eq('id', id);
+  if (error) { showToast('삭제 실패', 'error'); return; }
+  showToast('삭제됐어요', 'success');
+  loadSchedules();
+}
+
+// ════════════════════════════════════════
+// Supabase RLS — schedules 쓰기 허용 필요
+// ════════════════════════════════════════
+
+// ════════════════════════════════════════
+// 유틸
+// ════════════════════════════════════════
+function showToast(msg, type='') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type} show`;
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+</script>
+</body>
+</html>
