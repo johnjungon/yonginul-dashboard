@@ -686,9 +686,6 @@ footer strong { color:rgba(255,255,255,0.6); }
         <button class="voice-submit" id="voiceSubmitBtn" onclick="submitVoice()">등록하기</button>
       </div>
     </div>
-    <div class="voice-notice">
-      ⚠️ 근거 없는 비방글, 혐오적인 내용, 욕설 등은 관리자가 삭제할 수 있습니다.
-    </div>
     <div class="voice-posts" id="voicePosts">
       <div class="empty-posts">
         <div class="loading-dots"><span></span><span></span><span></span></div>
@@ -1073,21 +1070,26 @@ async function loadNews(dong) {
     }));
   } catch(e) { console.error('수기 뉴스 로딩 실패:', e); }
 
-  // 2. 구글 뉴스 RSS 자동 로딩 (rss2json 프록시 사용)
+  // 2. 네이버 뉴스 자동 로딩 (검색 API)
   let autoNews = [];
   try {
     const need = 3 - manualNews.length;
     if (need > 0) {
       const query = encodeURIComponent(`용인 기흥 ${dong}`);
-      const rssUrl = encodeURIComponent(`https://news.google.com/rss/search?q=${query}&hl=ko&gl=KR&ceid=KR:ko`);
-      const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${rssUrl}&count=${need}`;
-      const res = await fetch(apiUrl, { signal: AbortSignal.timeout(6000) });
+      const apiUrl = `https://openapi.naver.com/v1/search/news.json?query=${query}&display=${need}&sort=date`;
+      const res = await fetch(apiUrl, {
+        headers: {
+          'X-Naver-Client-Id': 'sYGHReGeluNWaVjSPPvb',
+          'X-Naver-Client-Secret': 'TWMKawrxM0',
+        },
+        signal: AbortSignal.timeout(6000)
+      });
       const json = await res.json();
-      if (json.status === 'ok' && json.items?.length) {
+      if (json.items?.length) {
         autoNews = json.items.slice(0, need).map(item => ({
           title: item.title?.replace(/<[^>]+>/g, '').trim() || '',
-          url: item.link || '',
-          source: item.author || '구글 뉴스',
+          url: item.originallink || item.link || '',
+          source: '네이버 뉴스',
           isManual: false,
         })).filter(n => n.title && n.url);
       }
