@@ -1070,20 +1070,14 @@ async function loadNews(dong) {
     }));
   } catch(e) { console.error('수기 뉴스 로딩 실패:', e); }
 
-  // 2. 네이버 뉴스 자동 로딩 (검색 API)
+  // 2. 네이버 뉴스 자동 로딩 (Vercel 프록시 경유)
   let autoNews = [];
   try {
     const need = 3 - manualNews.length;
     if (need > 0) {
-      const query = encodeURIComponent(`용인 기흥 ${dong}`);
-      const apiUrl = `https://openapi.naver.com/v1/search/news.json?query=${query}&display=${need}&sort=date`;
-      const res = await fetch(apiUrl, {
-        headers: {
-          'X-Naver-Client-Id': 'sYGHReGeluNWaVjSPPvb',
-          'X-Naver-Client-Secret': 'TWMKawrxM0',
-        },
-        signal: AbortSignal.timeout(6000)
-      });
+      const query = `용인 기흥 ${dong}`;
+      const apiUrl = `https://yonginul-dashboard.vercel.app/api/news?query=${encodeURIComponent(query)}`;
+      const res = await fetch(apiUrl, { signal: AbortSignal.timeout(8000) });
       const json = await res.json();
       if (json.items?.length) {
         autoNews = json.items.slice(0, need).map(item => ({
