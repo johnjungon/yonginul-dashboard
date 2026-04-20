@@ -281,6 +281,60 @@ body {
       <div class="empty-list">로딩 중…</div>
     </div>
   </div>
+
+  <!-- 뉴스 등록 폼 -->
+  <div class="form-card" style="margin-top:16px;">
+    <div class="form-card-title">동네 뉴스 등록</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">동네 <span>*</span></label>
+        <select class="form-select" id="nDong">
+          <option value="">선택하세요</option>
+          <option>신갈동</option><option>영덕1동</option><option>영덕2동</option>
+          <option>구갈동</option><option>상갈동</option><option>보라동</option>
+          <option>기흥동</option><option>서농동</option><option>동백2동</option><option>상하동</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">출처 (선택)</label>
+        <input class="form-input" id="nSource" placeholder="예) 경기일보, 용인신문">
+      </div>
+    </div>
+    <div class="form-row full">
+      <div class="form-group">
+        <label class="form-label">뉴스 제목 <span>*</span></label>
+        <input class="form-input" id="nTitle" placeholder="뉴스 제목을 입력하세요">
+      </div>
+    </div>
+    <div class="form-row full">
+      <div class="form-group">
+        <label class="form-label">링크 URL <span>*</span></label>
+        <input class="form-input" id="nUrl" placeholder="https://">
+        <div class="form-hint">클릭 시 해당 뉴스로 이동합니다</div>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">순서</label>
+        <input class="form-input" id="nOrder" type="number" value="1" min="1">
+        <div class="form-hint">숫자가 작을수록 위에 표시</div>
+      </div>
+    </div>
+    <button class="submit-btn" id="newsSubmitBtn" onclick="submitNews()"
+      style="background:#1A7A3A;">
+      ＋ 뉴스 등록하기
+    </button>
+  </div>
+
+  <!-- 등록된 뉴스 목록 -->
+  <div class="list-card" style="margin-top:16px;">
+    <div class="list-header">
+      <div class="list-title" style="color:#1A7A3A;">등록된 뉴스</div>
+      <button class="refresh-btn" onclick="loadNewsList()">새로고침</button>
+    </div>
+    <div id="newsList"><div class="empty-list">로딩 중…</div></div>
+  </div>
+
 </div>
 
 <script>
@@ -303,7 +357,6 @@ function doLogin() {
     document.getElementById('adminWrap').style.display = 'block';
     loadCandidateList();
     loadSchedules();
-    loadNews();
     loadNewsList();
   } else {
     document.getElementById('loginError').style.display = 'block';
@@ -313,76 +366,6 @@ function doLogin() {
 }
 
 
-// ════════════════════════════════════════
-// 뉴스 등록/삭제
-// ════════════════════════════════════════
-async function submitNews() {
-  const dong   = document.getElementById('nDong').value;
-  const title  = document.getElementById('nTitle').value.trim();
-  const url    = document.getElementById('nUrl').value.trim();
-  const source = document.getElementById('nSource').value.trim();
-  const order  = parseInt(document.getElementById('nOrder').value) || 1;
-
-  if (!dong || !title || !url) { showToast('동, 제목, URL은 필수예요', 'error'); return; }
-  if (!url.startsWith('http')) { showToast('URL은 http로 시작해야 해요', 'error'); return; }
-
-  const btn = document.getElementById('newsSubmitBtn');
-  btn.disabled = true; btn.textContent = '등록 중…';
-
-  try {
-    const { error } = await _sb.from('news').insert({
-      dong, title, url, source: source || null, sort_order: order
-    });
-    if (error) throw error;
-    showToast('✅ 뉴스가 등록됐어요!', 'success');
-    document.getElementById('nTitle').value = '';
-    document.getElementById('nUrl').value = '';
-    document.getElementById('nSource').value = '';
-    document.getElementById('nOrder').value = '1';
-    loadNewsList();
-  } catch(e) {
-    showToast('등록 실패: ' + e.message, 'error');
-  } finally {
-    btn.disabled = false; btn.textContent = '＋ 뉴스 등록하기';
-  }
-}
-
-async function loadNewsList() {
-  const container = document.getElementById('newsList2');
-  container.innerHTML = '<div class="empty-list">불러오는 중…</div>';
-  const { data, error } = await _sb.from('news').select('*').order('dong').order('sort_order');
-  if (error || !data?.length) {
-    container.innerHTML = '<div class="empty-list">등록된 뉴스가 없어요</div>'; return;
-  }
-  container.innerHTML = `
-    <table class="schedule-table">
-      <thead><tr><th>동</th><th>제목</th><th>출처</th><th>순서</th><th></th></tr></thead>
-      <tbody>
-        ${data.map(n => `
-          <tr>
-            <td><span class="candidate-badge">${esc(n.dong)}</span></td>
-            <td><a href="${esc(n.url)}" target="_blank" style="color:#004EA2;font-size:12px;">${esc(n.title)}</a></td>
-            <td style="font-size:11px;color:#7A8BA8;">${esc(n.source||'')}</td>
-            <td style="text-align:center;color:#A0ADBE;">${n.sort_order}</td>
-            <td><button class="del-btn" onclick="deleteNews('${n.id}')">삭제</button></td>
-          </tr>`).join('')}
-      </tbody>
-    </table>`;
-}
-
-async function deleteNews(id) {
-  if (!confirm('이 뉴스를 삭제할까요?')) return;
-  const { error } = await _sb.from('news').delete().eq('id', id);
-  if (error) { showToast('삭제 실패', 'error'); return; }
-  showToast('삭제됐어요', 'success');
-  loadNewsList();
-}
-
-function doLogout() {
-  document.getElementById('loginWrap').style.display = 'flex';
-  document.getElementById('adminWrap').style.display = 'none';
-  document.getElementById('pwInput').value = '';
-}
 
 // ════════════════════════════════════════
 // 후보 목록 로딩
@@ -529,7 +512,7 @@ async function submitNews() {
     document.getElementById('nUrl').value='';
     document.getElementById('nSource').value='';
     document.getElementById('nOrder').value='1';
-    loadNews();
+    loadNewsList();
   } catch(e) {
     showToast('등록 실패: '+e.message, 'error');
   } finally {
@@ -564,6 +547,68 @@ async function deleteNews(id) {
   if (error) { showToast('삭제 실패', 'error'); return; }
   showToast('삭제됐어요', 'success');
   loadNews();
+}
+
+
+// ════════════════════════════════════════
+// 뉴스 목록 + 등록 + 삭제
+// ════════════════════════════════════════
+async function submitNews() {
+  const dong   = document.getElementById('nDong').value;
+  const title  = document.getElementById('nTitle').value.trim();
+  const url    = document.getElementById('nUrl').value.trim();
+  const source = document.getElementById('nSource').value.trim();
+  const order  = parseInt(document.getElementById('nOrder').value)||1;
+
+  if (!dong||!title||!url) { showToast('동네·제목·링크는 필수예요', 'error'); return; }
+  if (!url.startsWith('http')) { showToast('링크는 http://로 시작해야 해요', 'error'); return; }
+
+  const btn = document.getElementById('newsSubmitBtn');
+  btn.disabled=true; btn.textContent='등록 중…';
+  try {
+    const { error } = await _sb.from('news').insert({ dong, title, url, source, sort_order: order });
+    if (error) throw error;
+    showToast('✅ 뉴스가 등록됐어요!', 'success');
+    document.getElementById('nTitle').value='';
+    document.getElementById('nUrl').value='';
+    document.getElementById('nSource').value='';
+    document.getElementById('nOrder').value='1';
+    loadNewsList();
+  } catch(e) {
+    showToast('등록 실패: '+e.message, 'error');
+  } finally {
+    btn.disabled=false; btn.textContent='＋ 뉴스 등록하기';
+  }
+}
+
+async function loadNewsList() {
+  const container = document.getElementById('newsList');
+  if (!container) return;
+  container.innerHTML = '<div class="empty-list">불러오는 중…</div>';
+  const { data, error } = await _sb.from('news').select('*').order('dong').order('sort_order');
+  if (error||!data?.length) { container.innerHTML='<div class="empty-list">등록된 뉴스가 없어요</div>'; return; }
+  container.innerHTML = `
+    <table class="schedule-table">
+      <thead><tr><th>동네</th><th>제목</th><th>출처</th><th>순서</th><th></th></tr></thead>
+      <tbody>
+        ${data.map(n=>`
+          <tr>
+            <td><span class="candidate-badge">${esc(n.dong)}</span></td>
+            <td><a href="${esc(n.url)}" target="_blank" style="color:#004EA2;text-decoration:none;font-size:12px;">${esc(n.title)}</a></td>
+            <td style="font-size:11px;color:#7A8BA8;">${esc(n.source||'')}</td>
+            <td style="text-align:center;color:#A0ADBE;">${n.sort_order}</td>
+            <td><button class="del-btn" onclick="deleteNews('${n.id}')">삭제</button></td>
+          </tr>`).join('')}
+      </tbody>
+    </table>`;
+}
+
+async function deleteNews(id) {
+  if (!confirm('이 뉴스를 삭제할까요?')) return;
+  const { error } = await _sb.from('news').delete().eq('id', id);
+  if (error) { showToast('삭제 실패', 'error'); return; }
+  showToast('삭제됐어요', 'success');
+  loadNewsList();
 }
 
 function showToast(msg, type='') {
