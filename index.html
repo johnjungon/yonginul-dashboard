@@ -135,8 +135,8 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--party-light); 
 /* ── RESULTS ── */
 .results-section { display:none; padding:0 0 60px; }
 .results-section.visible { display:block; animation:fadeUp 0.4s ease both; }
-.region-header { background:var(--party-blue); color:white; padding:28px 24px 24px; position:sticky; top:52px; z-index:100; }
-.region-header-inner { max-width:720px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; }
+.region-header { background:var(--party-navy); color:white; padding:12px 20px; position:sticky; top:0; z-index:200; box-shadow:0 2px 12px rgba(0,0,0,0.15); }
+.region-header-inner { max-width:720px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; gap:12px; }
 .region-label { font-size:10px; font-weight:700; color:rgba(255,255,255,0.5); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:4px; }
 .region-name { font-family:'Nanum Myeongjo',serif; font-size:24px; font-weight:800; }
 .back-btn { background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.2); color:white; padding:8px 16px; border-radius:8px; font-size:12px; font-weight:600; cursor:pointer; font-family:'Noto Sans KR',sans-serif; }
@@ -230,6 +230,23 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--party-light); 
 .call-link { background:var(--gold); color:var(--ink); text-decoration:none; border-radius:8px; padding:9px 16px; font-size:12px; font-weight:800; white-space:nowrap; }
 
 /* ── WORD MAP ── */
+.news-section { max-width:720px; margin:16px auto 0; padding:0 24px; }
+.news-card { background:white; border-radius:16px; padding:18px 20px; box-shadow:0 2px 12px rgba(14,26,43,0.08); }
+.news-title { font-size:14px; font-weight:800; color:var(--party-blue); margin-bottom:12px; }
+.news-list { display:flex; flex-direction:column; gap:8px; }
+.news-item {
+  display:flex; align-items:flex-start; gap:10px;
+  padding:10px 12px; background:var(--party-blue-pale);
+  border-radius:10px; text-decoration:none;
+  border-left:3px solid var(--party-blue);
+  transition:all 0.2s;
+}
+.news-item:hover { background:#D8E8FA; transform:translateX(3px); }
+.news-item-icon { font-size:14px; flex-shrink:0; margin-top:1px; }
+.news-item-body { flex:1; }
+.news-item-title { font-size:13px; font-weight:600; color:var(--party-dark); line-height:1.4; }
+.news-item-source { font-size:10px; color:var(--text-sub); margin-top:3px; }
+.news-empty { text-align:center; padding:20px; color:var(--text-sub); font-size:12px; }
 .wordmap-section { max-width:720px; margin:28px auto 0; padding:0 24px; }
 .wordmap-card { background:white; border-radius:20px; padding:20px; box-shadow:0 2px 16px rgba(14,26,43,0.08); }
 .wordmap-title { font-family:'Nanum Myeongjo',serif; font-size:18px; font-weight:800; margin-bottom:4px; }
@@ -308,6 +325,11 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--party-light); 
 .loading-dots span:nth-child(3) { animation-delay:0.4s; }
 @keyframes dotPulse { 0%,80%,100%{opacity:0.2;transform:scale(0.8)} 40%{opacity:1;transform:scale(1)} }
 
+.voice-notice {
+  background:#FFF8E1; border:1px solid #FFE082;
+  border-radius:8px; padding:9px 12px;
+  font-size:11px; color:#7A6000; margin-bottom:10px;
+}
 .empty-posts { text-align:center; padding:36px; color:var(--text-sub); font-size:13px; }
 .empty-posts-icon { font-size:32px; margin-bottom:10px; }
 .clearfix::after { content:''; display:block; clear:both; }
@@ -325,6 +347,53 @@ footer strong { color:rgba(255,255,255,0.6); }
   .vote-banner { margin-top:20px; }
 }
 @media (min-width:600px) { .hero { padding:80px 40px; } }
+
+/* 댓글 안내 문구 */
+.voice-notice {
+  font-size: 11px; color: var(--party-gray-text);
+  background: var(--party-blue-pale);
+  border-left: 3px solid var(--party-blue);
+  padding: 7px 12px; border-radius: 0 6px 6px 0;
+  margin-top: 8px; line-height: 1.5;
+}
+
+/* 동네 뉴스 섹션 */
+.news-section { max-width:720px; margin:16px auto 0; padding:0 24px; }
+.news-card {
+  background: white; border-radius: 16px;
+  padding: 16px; box-shadow: 0 2px 12px rgba(14,26,43,0.08);
+}
+.news-title {
+  font-size: 13px; font-weight: 800; color: var(--party-blue);
+  margin-bottom: 10px; display:flex; align-items:center; gap:6px;
+}
+.news-list { display:flex; flex-direction:column; gap:6px; }
+.news-item {
+  display:flex; align-items:flex-start; gap:8px;
+  padding:8px 10px; background:var(--party-blue-pale);
+  border-radius:8px; text-decoration:none;
+  transition: background 0.2s;
+}
+.news-item:hover { background: #D5E8FF; }
+.news-item-dot {
+  width:6px; height:6px; border-radius:50%;
+  background:var(--party-blue); flex-shrink:0; margin-top:5px;
+}
+.news-item-text { font-size:13px; color:var(--party-dark); line-height:1.4; flex:1; }
+.news-item-date { font-size:10px; color:var(--party-gray-text); flex-shrink:0; margin-top:2px; }
+.news-empty { font-size:12px; color:var(--party-gray-text); text-align:center; padding:12px 0; }
+
+/* 홈 버튼 강화 */
+.back-btn {
+  display:flex; align-items:center; gap:5px;
+  background:rgba(255,255,255,0.15);
+  border:1px solid rgba(255,255,255,0.25);
+  color:white; padding:7px 14px; border-radius:8px;
+  font-size:12px; font-weight:700; cursor:pointer;
+  font-family:'Noto Sans KR',sans-serif; transition:all 0.2s;
+}
+.back-btn:hover { background:rgba(255,255,255,0.28); }
+
 
 /* ════════════════════════════════════════
    손명수 의원 추천사 섹션
@@ -404,6 +473,16 @@ footer strong { color:rgba(255,255,255,0.6); }
 .intro-sign-name { font-size:14px; font-weight:800; color:rgba(255,255,255,0.85); letter-spacing:0.3px; }
 .intro-sign-role { font-size:11px; color:rgba(255,255,255,0.35); line-height:1.6; }
 .intro-sign-role span { display:inline; }
+.intro-sns { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+.intro-sns-link {
+  display:inline-flex; align-items:center; gap:4px;
+  padding:4px 10px; border-radius:20px;
+  font-size:10px; font-weight:700; text-decoration:none;
+  border:1.5px solid rgba(255,255,255,0.25);
+  color:rgba(255,255,255,0.75);
+  transition:all 0.2s;
+}
+.intro-sns-link:hover { background:rgba(255,255,255,0.15); color:white; border-color:rgba(255,255,255,0.5); }
 @media (max-width:600px) {
   .intro-sign-role span.break { display:block; }
 }
@@ -476,10 +555,10 @@ footer strong { color:rgba(255,255,255,0.6); }
       </div>
       <span class="intro-quote-mark">"</span>
       <p class="intro-quote">
-        용인시을의 내일을 함께 만들어갈<br>
-        <em>더불어민주당 후보들</em>을 소개합니다.<br>
-        우리 동네를 가장 잘 아는 사람들이<br>
-        여러분 곁에서 일하게 해주십시오.
+        <em>일잘하는 지방정부</em>를 함께 만들어갈<br>
+        더불어민주당 용인시을 후보들을 소개합니다.<br>
+        우리 동네를 가장 잘 알고 시민 곁에서 일할<br>
+        <em>'진짜일꾼'</em>을 선택해 주세요!
       </p>
       <div class="intro-sign">
         <div class="intro-sign-bar"></div>
@@ -488,6 +567,11 @@ footer strong { color:rgba(255,255,255,0.6); }
           <span class="intro-sign-role">
             더불어민주당 경기 용인시을 국회의원<span class="break"> 및 선거대책위원장</span>
           </span>
+          <div class="intro-sns">
+            <a class="intro-sns-link bl" href="https://blog.naver.com/sonms2024" target="_blank">📝 블로그</a>
+            <a class="intro-sns-link yt" href="https://youtube.com/channel/UCZOj3Tglgq9ZOJP-Sg59PSg" target="_blank">▶ 유튜브</a>
+            <a class="intro-sns-link fb" href="https://www.facebook.com/sonmyoungsoo0410/" target="_blank">👤 페이스북</a>
+          </div>
         </div>
       </div>
     </div>
@@ -543,13 +627,23 @@ footer strong { color:rgba(255,255,255,0.6); }
 <section class="results-section" id="resultsSection">
   <div class="region-header">
     <div class="region-header-inner">
-      <div>
-        <div class="region-label">📍 선택한 동네</div>
-        <div class="region-name" id="regionName">—</div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:13px;color:rgba(255,255,255,0.5);">📍</span>
+        <span style="font-size:13px;font-weight:700;color:white;" id="regionName">—</span>
       </div>
-      <button class="back-btn" onclick="goBack()">← 동네 변경</button>
+<button class="back-btn" onclick="goHome()">🏠 홈으로</button>
     </div>
   </div>
+  <!-- 동네 뉴스 — 헤더 바로 아래 -->
+  <div class="news-section" id="newsSection">
+    <div class="news-card">
+      <div class="news-title">📰 <span id="newsRegionName"></span> 주요 뉴스</div>
+      <div class="news-list" id="newsList">
+        <div class="news-empty">등록된 뉴스가 없습니다</div>
+      </div>
+    </div>
+  </div>
+
   <div class="issue-banner">
     <div class="issue-strip">
       <div class="issue-strip-label">📌 이 지역 주요 현안</div>
@@ -557,6 +651,7 @@ footer strong { color:rgba(255,255,255,0.6); }
     </div>
   </div>
   <div class="candidates-wrapper" id="candidatesWrapper"></div>
+
 
   <!-- 워드맵 -->
   <div class="wordmap-section">
@@ -574,6 +669,7 @@ footer strong { color:rgba(255,255,255,0.6); }
     <div class="voice-header">
       <div class="voice-title">주민 목소리</div>
       <div class="voice-sub">정책 제안, 응원, 궁금한 점을 자유롭게 남겨주세요</div>
+      <div class="voice-notice">📌 근거 없는 비방글·혐오적 내용·욕설 등은 관리자가 삭제할 수 있습니다</div>
     </div>
     <div class="voice-form">
       <div class="voice-form-row">
@@ -589,6 +685,9 @@ footer strong { color:rgba(255,255,255,0.6); }
       <div class="clearfix">
         <button class="voice-submit" id="voiceSubmitBtn" onclick="submitVoice()">등록하기</button>
       </div>
+    </div>
+    <div class="voice-notice">
+      ⚠️ 근거 없는 비방글, 혐오적인 내용, 욕설 등은 관리자가 삭제할 수 있습니다.
     </div>
     <div class="voice-posts" id="voicePosts">
       <div class="empty-posts">
@@ -622,6 +721,8 @@ const DONG_ISSUES = {
   "동백2동": ["동백역 혼잡","주차 부족","상권 육성","청소년 시설"],
   "상하동": ["농지 보전","귀농귀촌 지원","농도 정비","로컬푸드"],
 };
+
+
 
 // ════════════════════════════════════════
 // ★ 후보 데이터 — Supabase candidates 테이블
@@ -787,6 +888,82 @@ function toggleBanner() {
   banner.style.justifyContent = '';
 }
 
+
+// ════════════════════════════════════════
+// 브라우저 뒤로가기 / 앞으로가기 지원
+// ════════════════════════════════════════
+let _isPopState = false;
+window.addEventListener('popstate', async (e) => {
+  if (_isPopState) return;
+  _isPopState = true;
+  try {
+    const state = e.state;
+    if (!state || state.page === 'home') {
+      // 뒤로가기 → 홈
+      if (postsUnsubscribe) { postsUnsubscribe(); postsUnsubscribe = null; }
+      currentDong = null;
+      document.querySelectorAll('.dong-chip').forEach(b => b.classList.remove('selected'));
+      const ctaBtn = document.getElementById('ctaBtn');
+      if (ctaBtn) { ctaBtn.disabled = true; document.getElementById('ctaBtnText').textContent = '동네를 먼저 선택해주세요'; }
+      document.getElementById('heroSection').style.display = '';
+      const introSec = document.querySelector('.intro-section');
+      if (introSec) introSec.style.display = '';
+      document.getElementById('resultsSection').classList.remove('visible');
+      window.scrollTo({top:0,behavior:'smooth'});
+  loadNews(currentDong);
+    } else if (state.page === 'results' && state.dong) {
+      // 앞으로가기 or 다른 동네 히스토리 → 해당 동 결과로
+      currentDong = state.dong;
+      document.querySelectorAll('.dong-chip').forEach(b => {
+        b.classList.toggle('selected', b.dataset.dong === state.dong);
+      });
+      await showResultsWithoutPush(state.dong);
+    }
+  } finally {
+    _isPopState = false;
+  }
+});
+
+// pushState 없이 결과 표시 (popstate 내부에서 사용)
+async function showResultsWithoutPush(dong) {
+  currentDong = dong;
+  document.getElementById('heroSection').style.display = 'none';
+  const introSec = document.querySelector('.intro-section');
+  if (introSec) introSec.style.display = 'none';
+  document.getElementById('resultsSection').classList.add('visible');
+  document.getElementById('regionName').textContent = dong;
+  document.getElementById('issueTags').innerHTML =
+    (DONG_ISSUES[dong]||[]).map(i=>`<span class="issue-tag">${i}</span>`).join('');
+  document.getElementById('candidatesWrapper').innerHTML =
+    `<div style="text-align:center;padding:40px;color:var(--text-sub);">
+      <div class="loading-dots"><span></span><span></span><span></span></div>
+    </div>`;
+  const candidates = await loadCandidates();
+  const filtered = candidates.filter(c=>c.dong.includes(dong));
+  document.getElementById('candidatesWrapper').innerHTML = filtered.length
+    ? filtered.map(c=>renderCard(c)).join('')
+    : `<div style="text-align:center;padding:40px;color:var(--text-sub);">해당 지역 후보가 없습니다</div>`;
+  window.scrollTo({top:0,behavior:'smooth'});
+  await waitForDb();
+  startPostsListener();
+  loadNews(dong);
+}
+
+// 페이지 진입 시 URL에 dong 파라미터 있으면 바로 결과 표시
+(function checkInitialUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const dong = params.get('dong');
+  if (dong) {
+    currentDong = dong;
+    document.querySelectorAll('.dong-chip').forEach(b => {
+      b.classList.toggle('selected', b.dataset.dong === dong);
+    });
+    const ctaBtn = document.getElementById('ctaBtn');
+    if (ctaBtn) { ctaBtn.disabled = false; }
+    showResultsWithoutPush(dong);
+  }
+})();
+
 // ════════════════════════════════════════
 // D-DAY
 // ════════════════════════════════════════
@@ -812,7 +989,17 @@ function selectDong(btn) {
 async function showResults() {
   if (!currentDong) return;
   document.getElementById('heroSection').style.display = 'none';
+  const introSec = document.querySelector('.intro-section');
+  if (introSec) introSec.style.display = 'none';
   document.getElementById('resultsSection').classList.add('visible');
+  // 같은 동네면 replace, 다른 동네면 push
+  const currentState = history.state;
+  const isSameDong = currentState?.dong === currentDong;
+  if (isSameDong) {
+    history.replaceState({ page: 'results', dong: currentDong }, '', `?dong=${encodeURIComponent(currentDong)}`);
+  } else {
+    history.pushState({ page: 'results', dong: currentDong }, '', `?dong=${encodeURIComponent(currentDong)}`);
+  }
   document.getElementById('regionName').textContent = currentDong;
   document.getElementById('issueTags').innerHTML =
     (DONG_ISSUES[currentDong]||[]).map(i=>`<span class="issue-tag">${i}</span>`).join('');
@@ -836,12 +1023,71 @@ async function showResults() {
   // DB 준비되면 실시간 리스너 시작
   await waitForDb();
   startPostsListener();
+  loadNews(currentDong);
+}
+
+function goHome() {
+  // 히스토리 있으면 뒤로가기로 처리 (앞으로가기 보존)
+  if (history.state && history.state.page === 'results') {
+    history.back();
+  } else {
+    // 히스토리 없을 때 (직접 URL 접근 등) 수동 처리
+    if (postsUnsubscribe) { postsUnsubscribe(); postsUnsubscribe = null; }
+    currentDong = null;
+    document.querySelectorAll('.dong-chip').forEach(b => b.classList.remove('selected'));
+    const ctaBtn = document.getElementById('ctaBtn');
+    if (ctaBtn) { ctaBtn.disabled = true; document.getElementById('ctaBtnText').textContent = '동네를 먼저 선택해주세요'; }
+    document.getElementById('heroSection').style.display = '';
+    const introSec = document.querySelector('.intro-section');
+    if (introSec) { introSec.style.display = ''; introSec.scrollIntoView({behavior:'smooth'}); }
+    document.getElementById('resultsSection').classList.remove('visible');
+    document.getElementById('newsSection').style.display='none';
+    history.replaceState({ page: 'home' }, '', window.location.pathname);
+  }
+}
+
+
+// ════════════════════════════════════════
+// ★ 동네 뉴스 로딩
+// ════════════════════════════════════════
+async function loadNews(dong) {
+  document.getElementById('newsRegionName').textContent = dong;
+  const list = document.getElementById('newsList');
+  list.innerHTML = '<div class="news-empty">불러오는 중…</div>';
+  try {
+    const { data, error } = await sb()
+      .from('news')
+      .select('*')
+      .eq('dong', dong)
+      .order('sort_order', { ascending: true });
+    if (error) throw error;
+    if (!data?.length) {
+      document.getElementById('newsSection').style.display = 'none';
+      return;
+    }
+    document.getElementById('newsSection').style.display = 'block';
+    list.innerHTML = data.map(n => `
+      <a class="news-item" href="${esc(n.url)}" target="_blank" rel="noopener">
+        <span class="news-item-icon">📄</span>
+        <div class="news-item-body">
+          <div class="news-item-title">${esc(n.title)}</div>
+          ${n.source ? `<div class="news-item-source">${esc(n.source)}</div>` : ''}
+        </div>
+      </a>`
+    ).join('');
+  } catch(e) {
+    list.innerHTML = '<div class="news-empty">뉴스를 불러올 수 없습니다</div>';
+    console.error(e);
+  }
 }
 
 function goBack() {
   if (postsUnsubscribe) { postsUnsubscribe(); postsUnsubscribe = null; }
   document.getElementById('heroSection').style.display='';
+  const introSec = document.querySelector('.intro-section');
+  if (introSec) introSec.style.display = '';
   document.getElementById('resultsSection').classList.remove('visible');
+  document.getElementById('newsSection').style.display='none';
   window.scrollTo({top:0,behavior:'smooth'});
 }
 

@@ -303,11 +303,79 @@ function doLogin() {
     document.getElementById('adminWrap').style.display = 'block';
     loadCandidateList();
     loadSchedules();
+    loadNews();
+    loadNewsList();
   } else {
     document.getElementById('loginError').style.display = 'block';
     document.getElementById('pwInput').value = '';
     document.getElementById('pwInput').focus();
   }
+}
+
+
+// ════════════════════════════════════════
+// 뉴스 등록/삭제
+// ════════════════════════════════════════
+async function submitNews() {
+  const dong   = document.getElementById('nDong').value;
+  const title  = document.getElementById('nTitle').value.trim();
+  const url    = document.getElementById('nUrl').value.trim();
+  const source = document.getElementById('nSource').value.trim();
+  const order  = parseInt(document.getElementById('nOrder').value) || 1;
+
+  if (!dong || !title || !url) { showToast('동, 제목, URL은 필수예요', 'error'); return; }
+  if (!url.startsWith('http')) { showToast('URL은 http로 시작해야 해요', 'error'); return; }
+
+  const btn = document.getElementById('newsSubmitBtn');
+  btn.disabled = true; btn.textContent = '등록 중…';
+
+  try {
+    const { error } = await _sb.from('news').insert({
+      dong, title, url, source: source || null, sort_order: order
+    });
+    if (error) throw error;
+    showToast('✅ 뉴스가 등록됐어요!', 'success');
+    document.getElementById('nTitle').value = '';
+    document.getElementById('nUrl').value = '';
+    document.getElementById('nSource').value = '';
+    document.getElementById('nOrder').value = '1';
+    loadNewsList();
+  } catch(e) {
+    showToast('등록 실패: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = '＋ 뉴스 등록하기';
+  }
+}
+
+async function loadNewsList() {
+  const container = document.getElementById('newsList2');
+  container.innerHTML = '<div class="empty-list">불러오는 중…</div>';
+  const { data, error } = await _sb.from('news').select('*').order('dong').order('sort_order');
+  if (error || !data?.length) {
+    container.innerHTML = '<div class="empty-list">등록된 뉴스가 없어요</div>'; return;
+  }
+  container.innerHTML = `
+    <table class="schedule-table">
+      <thead><tr><th>동</th><th>제목</th><th>출처</th><th>순서</th><th></th></tr></thead>
+      <tbody>
+        ${data.map(n => `
+          <tr>
+            <td><span class="candidate-badge">${esc(n.dong)}</span></td>
+            <td><a href="${esc(n.url)}" target="_blank" style="color:#004EA2;font-size:12px;">${esc(n.title)}</a></td>
+            <td style="font-size:11px;color:#7A8BA8;">${esc(n.source||'')}</td>
+            <td style="text-align:center;color:#A0ADBE;">${n.sort_order}</td>
+            <td><button class="del-btn" onclick="deleteNews('${n.id}')">삭제</button></td>
+          </tr>`).join('')}
+      </tbody>
+    </table>`;
+}
+
+async function deleteNews(id) {
+  if (!confirm('이 뉴스를 삭제할까요?')) return;
+  const { error } = await _sb.from('news').delete().eq('id', id);
+  if (error) { showToast('삭제 실패', 'error'); return; }
+  showToast('삭제됐어요', 'success');
+  loadNewsList();
 }
 
 function doLogout() {
@@ -436,6 +504,68 @@ async function deleteSchedule(id) {
 // ════════════════════════════════════════
 // 유틸
 // ════════════════════════════════════════
+
+// ════════════════════════════════════
+// 뉴스 관련
+// ════════════════════════════════════
+async function submitNews() {
+  const dong  = document.getElementById('nDong').value;
+  const title = document.getElementById('nTitle').value.trim();
+  const url   = document.getElementById('nUrl').value.trim();
+  const source= document.getElementById('nSource').value.trim();
+  const order = parseInt(document.getElementById('nOrder').value)||1;
+
+  if (!dong||!title||!url) { showToast('동네·제목·링크는 필수예요', 'error'); return; }
+  if (!url.startsWith('http')) { showToast('링크는 http://로 시작해야 해요', 'error'); return; }
+
+  const btn = document.getElementById('newsSubmitBtn');
+  btn.disabled=true; btn.textContent='등록 중…';
+
+  try {
+    const { error } = await _sb.from('news').insert({ dong, title, url, source, sort_order: order });
+    if (error) throw error;
+    showToast('✅ 뉴스가 등록됐어요!', 'success');
+    document.getElementById('nTitle').value='';
+    document.getElementById('nUrl').value='';
+    document.getElementById('nSource').value='';
+    document.getElementById('nOrder').value='1';
+    loadNews();
+  } catch(e) {
+    showToast('등록 실패: '+e.message, 'error');
+  } finally {
+    btn.disabled=false; btn.textContent='＋ 뉴스 등록하기';
+  }
+}
+
+async function loadNews() {
+  const container = document.getElementById('newsList');
+  container.innerHTML = '<div class="empty-list">불러오는 중…</div>';
+  const { data, error } = await _sb.from('news').select('*').order('dong').order('sort_order');
+  if (error||!data?.length) { container.innerHTML='<div class="empty-list">등록된 뉴스가 없어요</div>'; return; }
+  container.innerHTML = `
+    <table class="schedule-table">
+      <thead><tr><th>동네</th><th>제목</th><th>출처</th><th>순서</th><th></th></tr></thead>
+      <tbody>
+        ${data.map(n=>`
+          <tr>
+            <td><span class="candidate-badge">${esc(n.dong)}</span></td>
+            <td><a href="${esc(n.url)}" target="_blank" style="color:#004EA2;text-decoration:none;font-size:12px;">${esc(n.title)}</a></td>
+            <td style="font-size:11px;color:#7A8BA8;">${esc(n.source||'')}</td>
+            <td style="text-align:center;color:#A0ADBE;">${n.sort_order}</td>
+            <td><button class="del-btn" onclick="deleteNews('${n.id}')">삭제</button></td>
+          </tr>`).join('')}
+      </tbody>
+    </table>`;
+}
+
+async function deleteNews(id) {
+  if (!confirm('이 뉴스를 삭제할까요?')) return;
+  const { error } = await _sb.from('news').delete().eq('id', id);
+  if (error) { showToast('삭제 실패', 'error'); return; }
+  showToast('삭제됐어요', 'success');
+  loadNews();
+}
+
 function showToast(msg, type='') {
   const t = document.getElementById('toast');
   t.textContent = msg;
