@@ -910,7 +910,6 @@ window.addEventListener('popstate', async (e) => {
       if (introSec) introSec.style.display = '';
       document.getElementById('resultsSection').classList.remove('visible');
       window.scrollTo({top:0,behavior:'smooth'});
-  loadNews(currentDong);
     } else if (state.page === 'results' && state.dong) {
       // 앞으로가기 or 다른 동네 히스토리 → 해당 동 결과로
       currentDong = state.dong;
@@ -1051,6 +1050,7 @@ function goHome() {
 // ★ 동네 뉴스 로딩
 // ════════════════════════════════════════
 async function loadNews(dong) {
+  if (!dong) return;
   document.getElementById('newsRegionName').textContent = dong;
   const list = document.getElementById('newsList');
   list.innerHTML = '<div class="news-empty">불러오는 중…</div>';
