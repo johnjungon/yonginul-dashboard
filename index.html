@@ -1053,33 +1053,65 @@ async function loadNews(dong) {
   if (!dong) return;
   document.getElementById('newsRegionName').textContent = dong;
   const list = document.getElementById('newsList');
+  const section = document.getElementById('newsSection');
   list.innerHTML = '<div class="news-empty">불러오는 중…</div>';
+
+  // 1. Supabase 수기 뉴스 로딩
+  let manualNews = [];
   try {
-    const { data, error } = await sb()
+    const { data } = await sb()
       .from('news')
       .select('*')
       .eq('dong', dong)
       .order('sort_order', { ascending: true })
       .limit(3);
-    if (error) throw error;
-    if (!data?.length) {
-      document.getElementById('newsSection').style.display = 'none';
-      return;
-    }
-    document.getElementById('newsSection').style.display = 'block';
-    list.innerHTML = data.map(n => `
-      <a class="news-item" href="${esc(n.url)}" target="_blank" rel="noopener">
-        <div class="news-item-dot"></div>
-        <div class="news-item-body">
-          <div class="news-item-title">${esc(n.title)}</div>
-          ${n.source ? `<div class="news-item-source" style="font-size:10px;color:var(--party-gray-text);margin-top:2px;">${esc(n.source)}</div>` : ''}
+    manualNews = (data || []).map(n => ({
+      title: n.title,
+      url: n.url,
+      source: n.source || '캠프 선별',
+      isManual: true,
+    }));
+  } catch(e) { console.error('수기 뉴스 로딩 실패:', e); }
+
+  // 2. 구글 뉴스 RSS 자동 로딩
+  let autoNews = [];
+  try {
+    const query = encodeURIComponent(`용인 기흥 ${dong}`);
+    const rssUrl = `https://news.google.com/rss/search?q=${query}&hl=ko&gl=KR&ceid=KR:ko`;
+    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`;
+    const res = await fetch(proxyUrl, { signal: AbortSignal.timeout(5000) });
+    const json = await res.json();
+    const parser = new DOMParser();
+    const xml = parser.parseFromString(json.contents, 'text/xml');
+    const items = xml.querySelectorAll('item');
+    autoNews = Array.from(items).slice(0, 3 - manualNews.length).map(item => ({
+      title: item.querySelector('title')?.textContent?.replace(/<[^>]+>/g, '') || '',
+      url: item.querySelector('link')?.textContent || '',
+      source: item.querySelector('source')?.textContent || '구글 뉴스',
+      isManual: false,
+    })).filter(n => n.title && n.url);
+  } catch(e) { console.error('자동 뉴스 로딩 실패:', e); }
+
+  // 3. 병합 — 수기 우선, 자동으로 채우기
+  const allNews = [...manualNews, ...autoNews].slice(0, 3);
+
+  if (!allNews.length) {
+    section.style.display = 'none';
+    return;
+  }
+
+  section.style.display = 'block';
+  list.innerHTML = allNews.map(n => `
+    <a class="news-item" href="${esc(n.url)}" target="_blank" rel="noopener">
+      <div class="news-item-dot" style="${n.isManual ? 'background:#004EA2;' : 'background:#1A7A3A;'}"></div>
+      <div class="news-item-body">
+        <div class="news-item-title">${esc(n.title)}</div>
+        <div class="news-item-source" style="font-size:10px;color:var(--party-gray-text);margin-top:2px;">
+          ${n.isManual ? '📌 ' : '📰 '}${esc(n.source)}
         </div>
+      </div>
       </a>`
     ).join('');
-  } catch(e) {
-    list.innerHTML = '<div class="news-empty">뉴스를 불러올 수 없습니다</div>';
-    console.error(e);
-  }
 }
 
 function goBack() {
