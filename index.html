@@ -1061,17 +1061,21 @@ async function loadNews(dong) {
   try {
     const need = 3 - manualNews.length;
     if (need > 0) {
-      const query = '용인 기흥 민주당 -국민의힘';
-      const apiUrl = `https://yonginul-dashboard.vercel.app/api/news?query=${encodeURIComponent(query)}`;
+      const EXCLUDE_WORDS = ['국민의힘', '국힘', '양향자'];
+      const query = '용인 기흥 민주당';
+      const apiUrl = `https://yonginul-dashboard.vercel.app/api/news?query=${encodeURIComponent(query)}&display=10`;
       const res = await fetch(apiUrl, { signal: AbortSignal.timeout(8000) });
       const json = await res.json();
       if (json.items?.length) {
-        autoNews = json.items.slice(0, need).map(item => ({
-          title: item.title?.replace(/<[^>]+>/g, '').trim() || '',
-          url: item.originallink || item.link || '',
-          source: '네이버 뉴스',
-          isManual: false,
-        })).filter(n => n.title && n.url);
+        autoNews = json.items
+          .map(item => ({
+            title: item.title?.replace(/<[^>]+>/g, '').trim() || '',
+            url: item.originallink || item.link || '',
+            source: '네이버 뉴스',
+            isManual: false,
+          }))
+          .filter(n => n.title && n.url && !EXCLUDE_WORDS.some(w => n.title.includes(w)))
+          .slice(0, need);
       }
     }
   } catch(e) { console.error('자동 뉴스 로딩 실패:', e); }
