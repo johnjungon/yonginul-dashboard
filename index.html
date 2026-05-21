@@ -1061,7 +1061,7 @@ async function loadNews(dong) {
   try {
     const need = 3 - manualNews.length;
     if (need > 0) {
-      const query = '민주당 용인 기흥';
+      const query = '용인 기흥 민주당 -국민의힘';
       const apiUrl = `https://yonginul-dashboard.vercel.app/api/news?query=${encodeURIComponent(query)}`;
       const res = await fetch(apiUrl, { signal: AbortSignal.timeout(8000) });
       const json = await res.json();
