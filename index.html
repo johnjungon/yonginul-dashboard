@@ -1052,8 +1052,7 @@ async function loadNews(dong) {
       const candidates = await loadCandidates();
       const dongCandidate = candidates.find(c => c.dong.includes(dong));
       const candidateName = dongCandidate ? dongCandidate.name : '';
-      const names = [candidateName, '추미애', '현근택'].filter(Boolean).join('|');
-      const query = `용인 기흥 ${dong} ${names}`;
+      const query = [dong, candidateName, '추미애', '현근택'].filter(Boolean).join(' ');
       const apiUrl = `https://yonginul-dashboard.vercel.app/api/news?query=${encodeURIComponent(query)}`;
       const res = await fetch(apiUrl, { signal: AbortSignal.timeout(8000) });
       const json = await res.json();
