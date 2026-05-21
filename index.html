@@ -152,11 +152,6 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--party-light); 
 .region-name { font-family:'Nanum Myeongjo',serif; font-size:24px; font-weight:800; }
 .back-btn { background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.2); color:white; padding:8px 16px; border-radius:8px; font-size:12px; font-weight:600; cursor:pointer; font-family:'Noto Sans KR',sans-serif; }
 .back-btn:hover { background:rgba(255,255,255,0.2); }
-.issue-banner { max-width:720px; margin:0 auto; padding:16px 24px 0; }
-.issue-strip { background:var(--party-blue-pale); border:1px solid var(--party-blue-mid); border-radius:10px; padding:12px 16px; margin-top:16px; }
-.issue-strip-label { font-size:10px; font-weight:800; color:var(--party-blue); letter-spacing:1px; text-transform:uppercase; margin-bottom:6px; }
-.issue-tags { display:flex; flex-wrap:wrap; gap:6px; }
-.issue-tag { background:white; border:1px solid var(--party-blue-mid); border-radius:20px; padding:4px 12px; font-size:12px; font-weight:600; color:var(--party-navy); }
 
 /* ── CANDIDATE CARDS ── */
 .candidates-wrapper { max-width:720px; margin:0 auto; padding:20px 24px 0; display:flex; flex-direction:column; gap:16px; }
@@ -219,14 +214,6 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--party-light); 
 .pledge-full-like:hover { border-color:var(--red); color:var(--red); }
 
 /* 공약 30자 제한 */
-.pledge-over { border-left-color: #E8A020; background: #FFF8EC; }
-.pledge-over-badge {
-  display:inline-block; margin-left:4px;
-  background:#E8A020; color:white;
-  font-size:9px; font-weight:800;
-  padding:1px 5px; border-radius:4px;
-  vertical-align:middle; cursor:help;
-}
 
 .pledge-full-like.liked { background:var(--red-pale); border-color:var(--red); color:var(--red); }
 .schedule-list { display:flex; flex-direction:column; gap:8px; }
@@ -600,11 +587,7 @@ footer strong { color:rgba(255,255,255,0.6); }
       <span class="hero-eyebrow-text">2026 지방선거 · 용인을 · 더불어민주당</span>
     </div>
     <h1 class="hero-title">우리 <em>동네</em>를 위해<br>누가 나섰나요?</h1>
-    <p class="hero-desc">동네를 선택하면<br>우리 지역 현안과 후보를 바로 확인할 수 있어요.</p>
-    <div class="update-notice">
-      <span class="update-notice-icon">📅</span>
-      <span class="update-notice-text"><strong>5월 16일 후보 등록 후</strong> 업데이트 됩니다</span>
-    </div>
+    <p class="hero-desc">동네를 선택하면<br>우리 지역 후보를 바로 확인할 수 있어요.</p>
     <div class="dong-selector">
       <div class="dong-selector-label">내가 사는 동네를 선택하세요</div>
       <div class="dong-chips">
@@ -659,12 +642,6 @@ footer strong { color:rgba(255,255,255,0.6); }
     </div>
   </div>
 
-  <div class="issue-banner">
-    <div class="issue-strip">
-      <div class="issue-strip-label">📌 이 지역 주요 현안</div>
-      <div class="issue-tags" id="issueTags"></div>
-    </div>
-  </div>
   <div class="candidates-wrapper" id="candidatesWrapper"></div>
 
 
@@ -719,20 +696,6 @@ footer strong { color:rgba(255,255,255,0.6); }
 // ════════════════════════════════════════
 // 정적 데이터
 // ════════════════════════════════════════
-
-// 지역 현안 — 수정하려면 여기만 바꾸세요
-const DONG_ISSUES = {
-  "신갈동": ["교통 체증 해소","구도심 재생","전통시장 활성화","보행 안전"],
-  "영덕1동": ["영덕지구 복합개발","대중교통 확충","공원 부족","주차난"],
-  "영덕2동": ["재개발 촉진","어린이 통학로 안전","소음 민원","노후 하수도"],
-  "구갈동": ["중학교 신설","대중교통 확충","공원시설 개선","구도심 활성화"],
-  "상갈동": ["공공도서관 건립","주차 공간 확보","주민 편의 증진"],
-  "보라동": ["청년주택","호수공원 관리","자전거도로","야간 안전"],
-  "기흥동": ["GTX-A 환승","스타트업 지원","도로 신설","미세먼지"],
-  "서농동": ["노인복지 강화","버스노선 개편","빈집 정비","공공의료"],
-  "동백2동": ["동백역 혼잡","주차 부족","상권 육성","청소년 시설"],
-  "상하동": ["농지 보전","귀농귀촌 지원","농도 정비","로컬푸드"],
-};
 
 
 
@@ -943,8 +906,6 @@ async function showResultsWithoutPush(dong) {
   if (introSec) introSec.style.display = 'none';
   document.getElementById('resultsSection').classList.add('visible');
   document.getElementById('regionName').textContent = dong;
-  document.getElementById('issueTags').innerHTML =
-    (DONG_ISSUES[dong]||[]).map(i=>`<span class="issue-tag">${i}</span>`).join('');
   document.getElementById('candidatesWrapper').innerHTML =
     `<div style="text-align:center;padding:40px;color:var(--text-sub);">
       <div class="loading-dots"><span></span><span></span><span></span></div>
@@ -1012,8 +973,6 @@ async function showResults() {
     history.pushState({ page: 'results', dong: currentDong }, '', `?dong=${encodeURIComponent(currentDong)}`);
   }
   document.getElementById('regionName').textContent = currentDong;
-  document.getElementById('issueTags').innerHTML =
-    (DONG_ISSUES[currentDong]||[]).map(i=>`<span class="issue-tag">${i}</span>`).join('');
 
   // 로딩 표시
   document.getElementById('candidatesWrapper').innerHTML =
@@ -1171,14 +1130,11 @@ function renderCard(c) {
   const pledgesFull = c.pledges_full.map((p,i)=>{
     const key=`${c.id}-f${i}`;
     const isLiked=!!myLiked[key];
-    // 30자 제한 — 초과 시 말줄임 + 경고 배지
     const LIMIT = 30;
     const trimmed = p.length > LIMIT ? p.slice(0, LIMIT) + '…' : p;
-    const overBadge = p.length > LIMIT
-      ? `<span class="pledge-over-badge" title="원문: ${esc(p)}">${p.length}자</span>` : '';
-    return `<div class="pledge-full-item${p.length > LIMIT ? ' pledge-over' : ''}">
+    return `<div class="pledge-full-item">
       <span class="pledge-num">${i+1}</span>
-      <span class="pledge-full-text">${esc(trimmed)}${overBadge}</span>
+      <span class="pledge-full-text">${esc(trimmed)}</span>
       <button class="pledge-full-like${isLiked?' liked':''}" id="pl-${key}" onclick="togglePledgeLike('${key}',this)">
         <span class="like-heart">${isLiked?'❤️':'🤍'}</span>
         <span class="like-cnt" id="plcnt-${key}">—</span>
