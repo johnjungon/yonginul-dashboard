@@ -911,7 +911,13 @@ async function showResultsWithoutPush(dong) {
       <div class="loading-dots"><span></span><span></span><span></span></div>
     </div>`;
   const candidates = await loadCandidates();
-  const filtered = candidates.filter(c=>c.dong.includes(dong));
+  const POSITION_ORDER = {'시장':0,'도의원':1,'시의원':2};
+  const filtered = candidates.filter(c=>c.dong.includes(dong))
+    .sort((a,b)=>{
+      const ao = POSITION_ORDER[Object.keys(POSITION_ORDER).find(k=>a.position.includes(k))] ?? 9;
+      const bo = POSITION_ORDER[Object.keys(POSITION_ORDER).find(k=>b.position.includes(k))] ?? 9;
+      return ao - bo;
+    });
   document.getElementById('candidatesWrapper').innerHTML = filtered.length
     ? filtered.map(c=>renderCard(c)).join('')
     : `<div style="text-align:center;padding:40px;color:var(--text-sub);">해당 지역 후보가 없습니다</div>`;
@@ -983,7 +989,13 @@ async function showResults() {
 
   // 구글 시트에서 후보 로딩
   const candidates = await loadCandidates();
-  const filtered = candidates.filter(c=>c.dong.includes(currentDong));
+  const POSITION_ORDER = {'시장':0,'도의원':1,'시의원':2};
+  const filtered = candidates.filter(c=>c.dong.includes(currentDong))
+    .sort((a,b)=>{
+      const ao = POSITION_ORDER[Object.keys(POSITION_ORDER).find(k=>a.position.includes(k))] ?? 9;
+      const bo = POSITION_ORDER[Object.keys(POSITION_ORDER).find(k=>b.position.includes(k))] ?? 9;
+      return ao - bo;
+    });
   document.getElementById('candidatesWrapper').innerHTML = filtered.length
     ? filtered.map(c=>renderCard(c)).join('')
     : `<div style="text-align:center;padding:40px;color:var(--text-sub);">해당 지역 후보가 없습니다</div>`;
