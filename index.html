@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>용인을 대시보드 · 더불어민주당</title>
+<title>더불어민주당 용인을 원팀! 용인을 필승!</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
 
@@ -1049,7 +1049,7 @@ async function loadNews(dong) {
   try {
     const need = 3 - manualNews.length;
     if (need > 0) {
-      const query = '추미애 현근택 용인 기흥';
+      const query = '민주당 용인 기흥';
       const apiUrl = `https://yonginul-dashboard.vercel.app/api/news?query=${encodeURIComponent(query)}`;
       const res = await fetch(apiUrl, { signal: AbortSignal.timeout(8000) });
       const json = await res.json();
