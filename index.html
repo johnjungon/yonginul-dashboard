@@ -731,7 +731,7 @@ async function loadCandidates() {
       const icons = ['📌','🏗','💡','🚌','🌿'];
       const pledgesShort = pledgesFull.slice(0,3).map((p,i) => ({
         icon: icons[i],
-        text: `<strong>${p.length > 15 ? p.slice(0,15)+'…' : p}</strong>`
+        text: `<strong>${p.length > 25 ? p.slice(0,25)+'…' : p}</strong>`
       }));
 
       return {
