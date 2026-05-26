@@ -1146,7 +1146,7 @@ function renderCard(c) {
   const pledgesFull = c.pledges_full.map((p,i)=>{
     const key=`${c.id}-f${i}`;
     const isLiked=!!myLiked[key];
-    const LIMIT = 30;
+    const LIMIT = 50;
     const trimmed = p.length > LIMIT ? p.slice(0, LIMIT) + '…' : p;
     return `<div class="pledge-full-item">
       <span class="pledge-num">${i+1}</span>
